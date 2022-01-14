@@ -1,6 +1,7 @@
 import requests
 import json
 import getpass
+import socket
 from requests.models import CaseInsensitiveDict
 
 class Portal_User:
@@ -15,6 +16,24 @@ class Portal_User:
       return "Didn't Sign in SKU Portal"
     else:
       return "Student Code is {}".format(self.studentcode)
+
+  def SendData(self, msg):
+      server_ip = "IP"
+      port = 9999
+
+      client = socket.socket()
+
+      client.connect((server_ip, port))
+      print("Server Coneected")
+
+      send_msg = msg.encode('utf-8')
+      client.send(send_msg)
+      print(msg)
+
+      receive = client.recv(1024)
+      print(b'receive : ' + receive)
+      
+      client.close()
 
   def LoginPortal(self):
     self.studentcode = input("Sudent Code : ")
@@ -31,6 +50,7 @@ class Portal_User:
       #print(res['USER_INFO'])
       print(res['RTN_MESSAGE'])
       print(res['USER_INFO']['DEPT_NM'])
+      self.SendData(res['USER_INFO']['DEPT_NM'])
       self.token = res['access_token']
       return True
 
@@ -122,11 +142,13 @@ class Portal_User:
       f.write("----------------------------------------------------------------------------------------------------\n")
     f.close
 
+  
+
 user = Portal_User()
 if(user.LoginPortal()):
   user.getGradePage()
   for terms in user.year_term:
     print(terms[0], terms[1])
     user.getGradeDetail(year = terms[0], term = terms[1])
-  user.getLibraryInfo()
+  # user.getLibraryInfo()
   print(user)
