@@ -1,24 +1,33 @@
 from http import client
 import socket
+from cryptography.fernet import Fernet
+import time
 
 server = socket.socket()
 
-server_ip = "IP"
-port = 9999
+server_ip = [SERVER_ADDRESS]
+port = [SERVER_PORT]
+key = [ENCRYPTO_KEY]
+fernet = Fernet(key)
 
 server.bind((server_ip, port))
 server.listen(1)
 print("server ready")
 
-client, addr = server.accept()
-print("connected")
+while True:
+    client, addr = server.accept()
+    print("connected")
+    print(client)
+    print(addr)
 
-recv_msg = client.recv(1024)
-msg = str(recv_msg, 'utf-8')
-print(msg)
+    recv_msg = client.recv(1024)
+    msg = str(fernet.decrypt(recv_msg), 'utf-8')
+    print(msg)
 
-client.sendall(recv_msg)
-print("message send")
+    time.sleep(5) # Something Activate
 
-client.close()
+    client.sendall("Success".encode('utf-8'))
+    print("Success message send")
+
+    client.close()
 server.close()
